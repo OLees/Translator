@@ -29,7 +29,11 @@ public:
 		delete lecksem[i];
 	};
 	double solve() { 
-		calculator();
+		void lexical_control();
+		void bracket_control();
+		void syntax_control();
+		void postfix_translator();
+		void calculator();
 		return result;
 	};
 };
@@ -67,7 +71,6 @@ void Translator::lexical_control() {
 }	
 
 void Translator::bracket_control(){
-void lexical_control();
 Stack<char> S;
 	for (int i = 0; i < s.length(); i++ )
 	{
@@ -134,20 +137,20 @@ Stack<char> S;
 
 	}
 	std::cout << std::endl;
-	if (!S.IsEmpty())
+	if (S.IsEmpty() != 1)
 		throw "There is uneven number of op/cl brackets";
 }
 
 
 void Translator::syntax_control(){
-	void bracket_control();
 	bool flag = true;
 int t;
+/*
 if ((lecksem.GetSize() > 0) && (lecksem[0]->GetType() == TermType::Operator))
 	if (((OPERATOR*)(lecksem[0]))->Priority() == 1)	
 		flag = false;	
 	else lecksem.push_back(new NUMBER(0));
-	
+	*/
 
 for (int i = 0; lecksem.GetSize() > 0 && i < lecksem.GetSize() - 1 && flag == true; i++) {
 	t = 0;
@@ -190,6 +193,8 @@ for (int i = 0; lecksem.GetSize() > 0 && i < lecksem.GetSize() - 1 && flag == tr
 
 	}
 }
+if (lecksem.GetSize() == 0)
+	throw "Entered string is empty";
 
 	if ((flag == true) && (lecksem.GetSize() > 0) && (lecksem[lecksem.GetSize() - 1]->GetType() == TermType::Operator))
 		flag = false;
@@ -199,8 +204,6 @@ for (int i = 0; lecksem.GetSize() > 0 && i < lecksem.GetSize() - 1 && flag == tr
 
 
 void Translator::postfix_translator() {
-	
-	void syntax_control();
 Term* Z;
 int f;
 Stack<Term*> S;
@@ -213,13 +216,11 @@ Stack<Term*> S;
 			postfix.push(lecksem[i]);
 			break;
 		case (TermType::OpBracket): 
-
-				S.push(lecksem[i]);
-				
+				//S.push(lecksem[i]);
 				break;
 
 		case (TermType::ClBracket): 
-		
+			if (S.IsEmpty() != 1) {
 				f = 0;
 				while (!f) {
 					Z = S.Top();
@@ -228,13 +229,13 @@ Stack<Term*> S;
 						f = 1;
 					else {
 						postfix.push(Z);
-						//lecksem.pop_back();
 					}
 				}
-				break;
+			}
+			break;
 
 		case (TermType::Operator):   
-			while (!S.IsEmpty()) {
+			while (S.IsEmpty() != 1) {
 				Z = S.Top();
 				S.pop();
 				if (((OPERATOR*)(Z))->Priority() >= ((OPERATOR*)(lecksem[i]))->Priority()) {
@@ -251,9 +252,9 @@ Stack<Term*> S;
 		}
 	}
 
-	while (!S.IsEmpty()) {
+	while (S.IsEmpty() != 1) {
 		postfix.push(S.Top());
-		S.pop_back();
+		S.pop();
 		
 	}
 }
@@ -261,8 +262,6 @@ Stack<Term*> S;
 
 
 void Translator::calculator(){
-	
-void bracket_control();
 Stack<double> S;
 for (int i = 0; i < postfix.GetSize(); i++)
 	switch (postfix[i]->GetType()) {
