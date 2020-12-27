@@ -3,31 +3,32 @@
 #include "ustack.h"
 #include "Term.h"
 #include <string>
+#include <vector>
 
 
 class Translator
 {
 private:
 	std::string s;
-	Vector<Term*> lecksem;
+	std::vector<Term*> lecksem;
 	Stack<Term*> postfix;
-
-	void lexical_control();	
-	void bracket_control();	
-	void syntax_control();	
-	void postfix_translator();	
-	void calculator();
-
-	double result = 0;
+	double result = -1;
 public:
 	Translator() { s = '0'; };
 	Translator(std::string temp){
 		s = temp;
 	}
 	~Translator(){
-	for (int i = 0; i < lecksem.GetSize(); i++)
+	for (int i = 0; i < lecksem.size(); i++)
 		delete lecksem[i];
 	};
+
+	void lexical_control();
+	void bracket_control();
+	void syntax_control();
+	void postfix_translator();
+	void calculator();
+
 	double solve() { 
 		void lexical_control();
 		void bracket_control();
@@ -40,7 +41,7 @@ public:
 
 void Translator::lexical_control() {
 	size_t StringSize = s.size();
-	for(int i = 0; (StringSize > 0)&&(s[i] != '='); i++) {
+	for(int i = 0; (StringSize > 0)&&(s[i] != '='); ) {
 		if((s[i] == '+') || (s[i] == '-') || (s[i] == '*') || (s[i] == '/')){
 			lecksem.push_back(new OPERATOR(s[i]));
 			StringSize--;
@@ -54,7 +55,7 @@ void Translator::lexical_control() {
 		else if (s[i] >= '0' && s[i] <= '9') {		 
 			size_t TempLenght;						 
 			double Temp;							 
-			Temp = std::stod(s, &TempLenght);
+			Temp = std::stod(&s[i], &TempLenght);
 			lecksem.push_back(new NUMBER(Temp));
 			StringSize -= TempLenght;
 			i += TempLenght;
@@ -64,7 +65,7 @@ void Translator::lexical_control() {
 			i++;
 		}
 		else {
-			std::cout << "Incorrect_symbol in possition: " << s.size() - StringSize + 1 << std::endl;
+			std::cout << "Incorrect_symbol ";
 			throw;
 		}
 	}
@@ -72,7 +73,7 @@ void Translator::lexical_control() {
 
 void Translator::bracket_control(){
 Stack<char> S;
-	for (int i = 0; i < s.length(); i++ )
+	for (size_t i = 0; i < s.size(); i++ )
 	{
 		std::cout << s[i] << " ";
 		
@@ -143,60 +144,60 @@ Stack<char> S;
 
 
 void Translator::syntax_control(){
-	bool flag = true;
+bool flag = true;
 int t;
-/*
-if ((lecksem.GetSize() > 0) && (lecksem[0]->GetType() == TermType::Operator))
+
+if ((lecksem.size() > 0) && (lecksem[0]->GetType() == TermType::Operator))
 	if (((OPERATOR*)(lecksem[0]))->Priority() == 1)	
 		flag = false;	
-	else lecksem.push_back(new NUMBER(0));
-	*/
-
-for (int i = 0; lecksem.GetSize() > 0 && i < lecksem.GetSize() - 1 && flag == true; i++) {
-	t = 0;
+	else lecksem.insert(lecksem.begin(), new NUMBER(0));
+	
+lecksem.resize(s.size());
+for (size_t i = 0; (lecksem.size() > 0) && (i < s.size()) && (flag == true); i++) {
+	t = i + 1;
+	std::cout << s[i] << " ";
 	switch (lecksem[i]->GetType()) {
 	case(TermType::Number):
-		t = i + 1;
+		
 		if (((lecksem[t])->GetType() == TermType::Number) || ((lecksem[t])->GetType() == TermType::OpBracket))
 			flag = false;
 		break;
 	case(TermType::Operator):
-		t = i + 1;
-		if (((lecksem[t])->GetType() == TermType::Operator) || ((lecksem[t])->GetType() == TermType::ClBracket))
+		//t = i + 1;
+		if (lecksem[t]->GetType() != TermType::Number)
 			flag = false;
 		break;
 	case(TermType::OpBracket):
-		t = i + 1;
-		if ((lecksem[t])->GetType() == TermType::ClBracket)
+		//t = i + 1;
+		if (((lecksem[t])->GetType() == TermType::ClBracket))
 		{
 			flag = false;
 			break;
 		}
-		if ((lecksem[t]->GetType()) == TermType::Operator)
+		if (((lecksem[t]->GetType()) == TermType::Operator) && (((OPERATOR*)(lecksem[t]))->Priority() == 0))
 		{
-			if (((OPERATOR*)(lecksem[t]))->Priority() == 1)
-			{
-				flag = false;
-				break;
-			}
-			else {
-				lecksem.push_back(new NUMBER(0));
-				i++;
-			}
+			lecksem.insert(lecksem.begin() + t, new NUMBER(0));
+			i++;
+			break;
 		}
+		else {	
+			flag = false;
+			break;
+		}
+		
 		break;
 	case(TermType::ClBracket):
-		t = i + 1;
+		//t = i + 1;
 		if ((lecksem[t]->GetType() == TermType::Number) || (lecksem[t]->GetType() == TermType::OpBracket))
 			flag = false;
 		break;
 
 	}
 }
-if (lecksem.GetSize() == 0)
+if (lecksem.size() == 0)
 	throw "Entered string is empty";
 
-	if ((flag == true) && (lecksem.GetSize() > 0) && (lecksem[lecksem.GetSize() - 1]->GetType() == TermType::Operator))
+	if ((flag == true) && (lecksem.size() > 0) && (lecksem[lecksem.size()-1]->GetType() == TermType::Operator))
 		flag = false;
 	if (flag == false)
 		throw "Syntax_Error";
@@ -207,7 +208,7 @@ void Translator::postfix_translator() {
 Term* Z;
 int f;
 Stack<Term*> S;
-	for (int i = 0; i < lecksem.GetSize(); i++){
+	for (size_t i = 0; i < lecksem.size(); i++){
 		
 		switch (lecksem[i]->GetType())
 		{
