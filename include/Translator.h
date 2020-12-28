@@ -12,7 +12,7 @@ private:
 	std::string s;
 	std::vector<Term*> lecksem;
 	Stack<Term*> postfix;
-	double result = -1;
+	double result = NULL;
 public:
 	Translator() { s = '0'; };
 	Translator(std::string temp){
@@ -52,21 +52,26 @@ void Translator::lexical_control() {
 			StringSize--;
 			i++;
 		}
-		else if (s[i] >= '0' && s[i] <= '9') {		 
-			size_t TempLenght;						 
-			double Temp;							 
-			Temp = std::stod(&s[i], &TempLenght);
-			lecksem.push_back(new NUMBER(Temp));
-			StringSize -= TempLenght;
-			i += TempLenght;
-		}
-		else if (s[i] == ' '){
+		else if (s[i] == ' ') {
 			StringSize--;
 			i++;
 		}
+		
+		else if (s[i] >= '0' && s[i] <= '9') 
+			while (s[i] >= '0' && s[i] <= '9') {
+				size_t TempLenght = 0;
+				double Temp = 0;
+				Temp = 10 * Temp + std::stod(&s[i]);
+				TempLenght++;
+				lecksem.push_back(new NUMBER(Temp));
+				StringSize--;
+				i++;
+			}
+		
 		else {
 			std::cout << "Incorrect_symbol ";
 			throw;
+		
 		}
 	}
 }	
@@ -152,7 +157,6 @@ if ((lecksem.size() > 0) && (lecksem[0]->GetType() == TermType::Operator))
 		flag = false;	
 	else lecksem.insert(lecksem.begin(), new NUMBER(0));
 	
-lecksem.resize(s.size());
 for (size_t i = 0; (lecksem.size() > 0) && (i < s.size()) && (flag == true); i++) {
 	t = i + 1;
 	std::cout << s[i] << " ";
@@ -217,7 +221,7 @@ Stack<Term*> S;
 			postfix.push(lecksem[i]);
 			break;
 		case (TermType::OpBracket): 
-				//S.push(lecksem[i]);
+				S.push(lecksem[i]);
 				break;
 
 		case (TermType::ClBracket): 
