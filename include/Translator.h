@@ -11,7 +11,7 @@ class Translator
 private:
 	std::string s;
 	std::vector<Term*> lecksem;
-	Stack<Term*> postfix;
+	std::vector<Term*> postfix;
 	double result = NULL;
 public:
 	Translator() { s = '0'; };
@@ -157,7 +157,7 @@ if ((lecksem.size() > 0) && (lecksem[0]->GetType() == TermType::Operator))
 		flag = false;	
 	else lecksem.insert(lecksem.begin(), new NUMBER(0));
 	
-for (size_t i = 0; (lecksem.size() > 0) && (i < s.size()) && (flag == true); i++) {
+for (size_t i = 0; (lecksem.size() > 0) && (i < s.size() - 1) && (flag == true); i++) {
 	t = i + 1;
 	std::cout << s[i] << " ";
 	switch (lecksem[i]->GetType()) {
@@ -166,13 +166,13 @@ for (size_t i = 0; (lecksem.size() > 0) && (i < s.size()) && (flag == true); i++
 		if (((lecksem[t])->GetType() == TermType::Number) || ((lecksem[t])->GetType() == TermType::OpBracket))
 			flag = false;
 		break;
+
 	case(TermType::Operator):
-		//t = i + 1;
 		if (lecksem[t]->GetType() != TermType::Number)
 			flag = false;
 		break;
+
 	case(TermType::OpBracket):
-		//t = i + 1;
 		if (((lecksem[t])->GetType() == TermType::ClBracket))
 		{
 			flag = false;
@@ -190,8 +190,8 @@ for (size_t i = 0; (lecksem.size() > 0) && (i < s.size()) && (flag == true); i++
 		}
 		
 		break;
+
 	case(TermType::ClBracket):
-		//t = i + 1;
 		if ((lecksem[t]->GetType() == TermType::Number) || (lecksem[t]->GetType() == TermType::OpBracket))
 			flag = false;
 		break;
@@ -218,22 +218,22 @@ Stack<Term*> S;
 		{
 		case (TermType::Number):  
 		
-			postfix.push(lecksem[i]);
+			postfix.push_back(lecksem[i]);
 			break;
 		case (TermType::OpBracket): 
-				S.push(lecksem[i]);
+				S.push_back(lecksem[i]);
 				break;
 
 		case (TermType::ClBracket): 
 			if (S.IsEmpty() != 1) {
 				f = 0;
-				while (!f) {
+				while (f == 0) {
 					Z = S.Top();
 					S.pop();
-					if (((BRACKET*)(Z))->GetType() == TermType::OpBracket)
+					if (Z->GetType() == TermType::OpBracket)
 						f = 1;
 					else {
-						postfix.push(Z);
+						postfix.push_back(Z);
 					}
 				}
 			}
@@ -244,7 +244,7 @@ Stack<Term*> S;
 				Z = S.Top();
 				S.pop();
 				if (((OPERATOR*)(Z))->Priority() >= ((OPERATOR*)(lecksem[i]))->Priority()) {
-					postfix.push(Z);
+					postfix.push_back(Z);
 					
 				}
 				else {
@@ -257,8 +257,8 @@ Stack<Term*> S;
 		}
 	}
 
-	while (S.IsEmpty() != 1) {
-		postfix.push(S.Top());
+	while (!S.IsEmpty()) {
+		postfix.push_back(S.Top());
 		S.pop();
 		
 	}
@@ -268,7 +268,7 @@ Stack<Term*> S;
 
 void Translator::calculator(){
 Stack<double> S;
-for (int i = 0; i < postfix.GetSize(); i++)
+for (int i = 0; i < postfix.size(); i++)
 	switch (postfix[i]->GetType()) {
 	case(Number):
 		S.push(((NUMBER*)(postfix[i]))->GetValue());
