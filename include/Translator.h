@@ -36,15 +36,15 @@ public:
 };
 
 void Translator::lexical_control() {
-	/*
+	
 	size_t StringSize = s.size();
-	for(int i = 0; (StringSize > 0)&&(s[i] != '='); ) {
-		if((s[i] == '+') || (s[i] == '-') || (s[i] == '*') || (s[i] == '/')){
+	for (int i = 0; (StringSize > 0) && (s[i] != '='); ) {
+		if ((s[i] == '+') || (s[i] == '-') || (s[i] == '*') || (s[i] == '/')) {
 			lecksem.push_back(new OPERATOR(s[i]));
 			StringSize--;
 			i++;
 		}
-		else if ((s[i] == '(') || (s[i] == ')')){
+		else if ((s[i] == '(') || (s[i] == ')')) {
 			lecksem.push_back(new BRACKET(s[i]));
 			StringSize--;
 			i++;
@@ -53,7 +53,7 @@ void Translator::lexical_control() {
 			StringSize--;
 			i++;
 		}
-		
+
 		else if (s[i] >= '0' && s[i] <= '9') {
 			size_t TempLenght = 0;
 			double Temp = 0;
@@ -67,41 +67,11 @@ void Translator::lexical_control() {
 			}
 			lecksem.push_back(new NUMBER(Temp));
 		}
-		
-		else {
-			std::cout << "Incorrect_symbol ";
-			throw;
-		
-		}
-	}*/
-
-	while (s.size() > 0 && s[0] != '=') {
-		if ((s[0] == '+') || (s[0] == '-') || (s[0] == '*') || (s[0] == '/')) {
-			lecksem.push_back(new OPERATOR(s[0]));
-			s.erase(0, 1);
-		}
-		else if ((s[0] == '(') || (s[0] == ')')) {
-			lecksem.push_back(new BRACKET(s[0]));
-			s.erase(0, 1);
-		}
-		else if (s[0] == ' ') {
-			s.erase(0, 1);
-		}
-
-		else if (s[0] >= '0' && s[0] <= '9') {
-			double Temp = 0;
-			while (s[0] >= '0' && s[0] <= '9') {
-				//size_t TempLenght = 0;
-				Temp = 10*Temp + std::stod(&s[0]);
-				s.erase(0, 1);
-				//TempLenght++;
-			}
-			lecksem.push_back(new NUMBER(Temp));
-		}
 
 		else 
-			throw "Incorrect_symbol";		
+			throw "Incorrect_symbol ";
 	}
+	
 
 }	
 
@@ -184,7 +154,7 @@ bool flag = true;
 int t;
 
 if ((lecksem.size() > 0) && (lecksem[0]->GetType() == TermType::Operator))
-	if (((OPERATOR*)(lecksem[0]))->Priority() <= 1)	
+	if (((OPERATOR*)(lecksem[0]))->Priority() == 2)	
 		flag = false;	
 	else lecksem.insert(lecksem.begin(), new NUMBER(0));
 	
@@ -234,7 +204,78 @@ for (size_t i = 0; (lecksem.size() > 0) && (i < s.size() - 1) && (flag == true);
 if ((flag == true) && (lecksem.size() > 0) && (lecksem[lecksem.size()-1]->GetType() == TermType::Operator))
 	throw "Syntax_Error";
 
+
+
+/*
+bool allright = true;
+
+if (lecksem.size() > 0 && lecksem[0]->GetType() == TermType::Operator)		
+	if (((OPERATOR*)(lecksem[0]))->Priority() == 1)			// *, /
+	{
+		throw "SYNTAX_ERROR";
+	}
+	else lecksem.insert(lecksem.begin(), new NUMBER(0));
+												
+for (int i = 0; lecksem.size() > 0 && i < lecksem.size() - 1 && allright == true; i++) {
+	int t = i + 1;
+	switch (lecksem[i]->GetType()) {
+	case(TermType::Number):					
+		if (lecksem[t]->GetType() == TermType::Number || lecksem[t]->GetType() == TermType::OpBracket)
+		{
+			throw "SYNTAX_ERROR";
+
+		}
+		break;
+	case(TermType::Operator):
+		if (lecksem[t]->GetType() == TermType::Operator || lecksem[t]->GetType() == TermType::ClBracket)
+		{
+			throw "SYNTAX_ERROR";
+		}
+		break;
+	case(TermType::OpBracket):
+		if (lecksem[t]->GetType() == TermType::ClBracket)		
+		{
+			throw "SYNTAX_ERROR";
+			break;
+		}
+		if (lecksem[t]->GetType() == TermType::Operator)		
+		{
+			if (((OPERATOR*)(lecksem[t]))->Priority() == 1)
+			{
+				throw "SYNTAX_ERROR";
+				break;
+			}
+			else {
+				lecksem.insert(lecksem.begin() + t, new NUMBER(0));	
+				i++;	
+				
+			}
+		}
+		break;
+	case(TermType::ClBracket):
+		if (lecksem[t]->GetType() == TermType::Number || lecksem[t]->GetType() == TermType::OpBracket)
+		{
+			throw "SYNTAX_ERROR";
+		}
+		break;
+	default:
+		throw "SYNTAX_ERROR";
+	}
 }
+
+
+if (allright == true && lecksem.size() > 0 && lecksem[lecksem.size() - 1]->GetType() == TermType::Operator)	//Мы точно знаем, что там не открывающая скобка(из проверка на скобки). Осталось убедиться, что там не операция
+{
+	throw "SYNTAX_ERROR";
+}
+
+if (allright == false)
+throw "SYNTAX_ERROR";
+
+*/
+}
+
+
 
 
 void Translator::postfix_translator() {
@@ -246,27 +287,27 @@ Stack<Term*> S;
 		
 		switch (lecksem[i]->GetType())
 		{
-		case (TermType::Number):  
+		case (TermType::Number):
 			postfix.push_back(lecksem[i]);
 			break;
 
-		case (TermType::OpBracket): 
-				S.push_back(lecksem[i]);
-				break;
+		case (TermType::OpBracket):
+			S.push_back(lecksem[i]);
+			break;
 
-		case (TermType::ClBracket): 
+		case (TermType::ClBracket):
 			f = 0;
 			while (f == 0) {
 				Z = S.Top();
 				S.pop();
-				if (Z -> GetType() == TermType::OpBracket)
+				if (Z->GetType() == TermType::OpBracket)
 					f = 1;
-				else 
+				else
 					postfix.push_back(Z);
 			}
 			break;
 
-		case (TermType::Operator):   
+		case (TermType::Operator):
 			while (!S.IsEmpty()) {
 				Z = S.Top();
 				S.pop();
@@ -286,7 +327,10 @@ Stack<Term*> S;
 			}
 			S.push(lecksem[i]);
 			break;
+
+
 		}
+
 	}
 
 	while (!S.IsEmpty()) {

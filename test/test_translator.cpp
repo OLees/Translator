@@ -42,7 +42,7 @@ TEST(TTranslator, can_check_for_lexical) {
 
 TEST(TTranslator, can_check_for_syntax) {
 	std::string str;
-	str = "(1+2)++()";
+	str = "*(1+2)++";
 	Translator A(str);
 	/*try
 	{
