@@ -12,7 +12,7 @@ private:
 	std::string s;
 	std::vector<Term*> lecksem;
 	std::vector<Term*> postfix;
-	double result = NULL;
+	double result = 0;
 public:
 	Translator() { s = '0'; };
 	Translator(std::string temp){
@@ -30,16 +30,13 @@ public:
 	void calculator();
 
 	double solve() { 
-		void lexical_control();
-		void bracket_control();
-		void syntax_control();
-		void postfix_translator();
 		void calculator();
 		return result;
 	};
 };
 
 void Translator::lexical_control() {
+	/*
 	size_t StringSize = s.size();
 	for(int i = 0; (StringSize > 0)&&(s[i] != '='); ) {
 		if((s[i] == '+') || (s[i] == '-') || (s[i] == '*') || (s[i] == '/')){
@@ -57,26 +54,59 @@ void Translator::lexical_control() {
 			i++;
 		}
 		
-		else if (s[i] >= '0' && s[i] <= '9') 
+		else if (s[i] >= '0' && s[i] <= '9') {
+			size_t TempLenght = 0;
+			double Temp = 0;
+			Temp = std::stod(&s[i]);
+			i++;
 			while (s[i] >= '0' && s[i] <= '9') {
-				size_t TempLenght = 0;
-				double Temp = 0;
 				Temp = 10 * Temp + std::stod(&s[i]);
 				TempLenght++;
-				lecksem.push_back(new NUMBER(Temp));
 				StringSize--;
 				i++;
 			}
+			lecksem.push_back(new NUMBER(Temp));
+		}
 		
 		else {
 			std::cout << "Incorrect_symbol ";
 			throw;
 		
 		}
+	}*/
+
+	while (s.size() > 0 && s[0] != '=') {
+		if ((s[0] == '+') || (s[0] == '-') || (s[0] == '*') || (s[0] == '/')) {
+			lecksem.push_back(new OPERATOR(s[0]));
+			s.erase(0, 1);
+		}
+		else if ((s[0] == '(') || (s[0] == ')')) {
+			lecksem.push_back(new BRACKET(s[0]));
+			s.erase(0, 1);
+		}
+		else if (s[0] == ' ') {
+			s.erase(0, 1);
+		}
+
+		else if (s[0] >= '0' && s[0] <= '9') {
+			double Temp = 0;
+			while (s[0] >= '0' && s[0] <= '9') {
+				//size_t TempLenght = 0;
+				Temp = 10*Temp + std::stod(&s[0]);
+				s.erase(0, 1);
+				//TempLenght++;
+			}
+			lecksem.push_back(new NUMBER(Temp));
+		}
+
+		else 
+			throw "Incorrect_symbol";		
 	}
+
 }	
 
 void Translator::bracket_control(){
+	void lexical_control();
 Stack<char> S;
 	for (size_t i = 0; i < s.size(); i++ )
 	{
@@ -85,7 +115,7 @@ Stack<char> S;
 		switch (s[i]) {
 
 		case '(':
-			S.push(0);
+			S.push('(');
 			break;   
 
 		case ')':
@@ -93,7 +123,7 @@ Stack<char> S;
 			if (S.IsEmpty())
 				throw "There is problem with )";
 			else
-				if (S.Top() != 0)
+				if (S.Top() != '(')
 				{
 					throw "There is problem with )";
 					break;
@@ -104,7 +134,7 @@ Stack<char> S;
 
 
 		case '[':
-			S.push(1);
+			S.push('[');
 			break; 
 
 		case ']':
@@ -112,7 +142,7 @@ Stack<char> S;
 			if (S.IsEmpty())
 				throw "There is problem with ]";
 			else
-				if (S.Top() != 1)
+				if (S.Top() != '[')
 				{
 					throw "There is problem with ]";
 					break;
@@ -122,7 +152,7 @@ Stack<char> S;
 			break; 
 
 		case '{':
-			S.push(2);
+			S.push('{');
 			break; 
 
 		case '}':
@@ -130,7 +160,7 @@ Stack<char> S;
 			if (S.IsEmpty())
 				throw "There is problem with }";
 			else
-				if (S.Top() != 2)
+				if (S.Top() != '{')
 				{
 					throw "There is problem with }";
 					break;
@@ -149,11 +179,12 @@ Stack<char> S;
 
 
 void Translator::syntax_control(){
+	void bracket_control();
 bool flag = true;
 int t;
 
 if ((lecksem.size() > 0) && (lecksem[0]->GetType() == TermType::Operator))
-	if (((OPERATOR*)(lecksem[0]))->Priority() == 1)	
+	if (((OPERATOR*)(lecksem[0]))->Priority() <= 1)	
 		flag = false;	
 	else lecksem.insert(lecksem.begin(), new NUMBER(0));
 	
@@ -164,18 +195,18 @@ for (size_t i = 0; (lecksem.size() > 0) && (i < s.size() - 1) && (flag == true);
 	case(TermType::Number):
 		
 		if (((lecksem[t])->GetType() == TermType::Number) || ((lecksem[t])->GetType() == TermType::OpBracket))
-			flag = false;
+			throw "Syntax_Error";
 		break;
 
 	case(TermType::Operator):
-		if (lecksem[t]->GetType() != TermType::Number)
-			flag = false;
+		if (((lecksem[t])->GetType() == TermType::Operator) || ((lecksem[t])->GetType() == TermType::ClBracket))
+			throw "Syntax_Error";
 		break;
 
 	case(TermType::OpBracket):
 		if (((lecksem[t])->GetType() == TermType::ClBracket))
 		{
-			flag = false;
+			throw "Syntax_Error";
 			break;
 		}
 		if (((lecksem[t]->GetType()) == TermType::Operator) && (((OPERATOR*)(lecksem[t]))->Priority() == 0))
@@ -185,7 +216,7 @@ for (size_t i = 0; (lecksem.size() > 0) && (i < s.size() - 1) && (flag == true);
 			break;
 		}
 		else {	
-			flag = false;
+			throw "Syntax_Error";
 			break;
 		}
 		
@@ -193,22 +224,21 @@ for (size_t i = 0; (lecksem.size() > 0) && (i < s.size() - 1) && (flag == true);
 
 	case(TermType::ClBracket):
 		if ((lecksem[t]->GetType() == TermType::Number) || (lecksem[t]->GetType() == TermType::OpBracket))
-			flag = false;
+			throw "Syntax_Error";
 		break;
 
 	}
 }
-if (lecksem.size() == 0)
-	throw "Entered string is empty";
 
-	if ((flag == true) && (lecksem.size() > 0) && (lecksem[lecksem.size()-1]->GetType() == TermType::Operator))
-		flag = false;
-	if (flag == false)
-		throw "Syntax_Error";
+
+if ((flag == true) && (lecksem.size() > 0) && (lecksem[lecksem.size()-1]->GetType() == TermType::Operator))
+	throw "Syntax_Error";
+
 }
 
 
 void Translator::postfix_translator() {
+	void syntax_control();
 Term* Z;
 int f;
 Stack<Term*> S;
@@ -217,35 +247,37 @@ Stack<Term*> S;
 		switch (lecksem[i]->GetType())
 		{
 		case (TermType::Number):  
-		
 			postfix.push_back(lecksem[i]);
 			break;
+
 		case (TermType::OpBracket): 
 				S.push_back(lecksem[i]);
 				break;
 
 		case (TermType::ClBracket): 
-			if (S.IsEmpty() != 1) {
-				f = 0;
-				while (f == 0) {
-					Z = S.Top();
-					S.pop();
-					if (Z->GetType() == TermType::OpBracket)
-						f = 1;
-					else {
-						postfix.push_back(Z);
-					}
-				}
+			f = 0;
+			while (f == 0) {
+				Z = S.Top();
+				S.pop();
+				if (Z -> GetType() == TermType::OpBracket)
+					f = 1;
+				else 
+					postfix.push_back(Z);
 			}
 			break;
 
 		case (TermType::Operator):   
-			while (S.IsEmpty() != 1) {
+			while (!S.IsEmpty()) {
 				Z = S.Top();
 				S.pop();
-				if (((OPERATOR*)(Z))->Priority() >= ((OPERATOR*)(lecksem[i]))->Priority()) {
+				if (Z->GetType() == TermType::OpBracket)
+				{
+					S.push(Z);
+					break;
+				}
+				else if (((OPERATOR*)(Z))->Priority() >= ((OPERATOR*)(lecksem[i]))->Priority()) {
 					postfix.push_back(Z);
-					
+					break;
 				}
 				else {
 					S.push(Z);
@@ -262,11 +294,14 @@ Stack<Term*> S;
 		S.pop();
 		
 	}
+	if (postfix.size() < 1)
+		throw "Your string is too short for calculation";
 }
 
 
 
 void Translator::calculator(){
+	void postfix_translator();
 Stack<double> S;
 for (int i = 0; i < postfix.size(); i++)
 	switch (postfix[i]->GetType()) {

@@ -68,11 +68,14 @@ public:
 		std::cout << op;
 	}
 	int Priority() {
-		if ((op == '+') || (op == '-'))
+		if ((op >= '0')&&(op <= '9'))
 			return 0;
 		else
+		if ((op == '+') || (op == '-'))
+			return 1;
+		else
 			if ((op == '*') || (op == '/'))
-				return 1;
+				return 2;
 			else throw "Unknown operator";
 	}
 

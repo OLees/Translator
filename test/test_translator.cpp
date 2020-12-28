@@ -28,9 +28,9 @@ TEST(TTranslator, can_check_for_wrong_bracketing) {
 
 TEST(TTranslator, can_check_for_lexical) {
 	std::string str;
-	str = "(1+2)()";
+	str = "(1+2)&";
 	Translator A(str);
-	ASSERT_NO_THROW(A.lexical_control());
+	ASSERT_ANY_THROW(A.lexical_control());
 	/*try
 	{
 		A.lexical_control();
@@ -42,16 +42,31 @@ TEST(TTranslator, can_check_for_lexical) {
 
 TEST(TTranslator, can_check_for_syntax) {
 	std::string str;
-	str = "(1+2)()";
+	str = "(1+2)++()";
 	Translator A(str);
-	try
+	/*try
 	{
 		A.syntax_control();
 	}
 	catch (const char* message) {
 		std::cout << message << std::endl;
+	}*/
+	ASSERT_ANY_THROW(A.syntax_control());
+};
+
+TEST(TTranslator, can_solve_not_easy_expressions) {
+	std::string str("(1+2)*(3+4)");
+	Translator A(str);
+	/*
+	try
+	{
+		A.solve();
 	}
-	//ASSERT_NO_THROW(A.syntax_control());
+	catch (const char* message) {
+		std::cout << message << std::endl;
+	}*/
+	double temp = A.solve();
+	EXPECT_EQ(21, temp);
 };
 
 
