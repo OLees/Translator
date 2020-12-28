@@ -28,9 +28,9 @@ TEST(TTranslator, can_check_for_wrong_bracketing) {
 
 TEST(TTranslator, can_check_for_lexical) {
 	std::string str;
-	str = "(1+2)&";
+	str = "1";
 	Translator A(str);
-	ASSERT_ANY_THROW(A.lexical_control());
+	ASSERT_NO_THROW(A.lexical_control());
 	/*try
 	{
 		A.lexical_control();
@@ -40,9 +40,17 @@ TEST(TTranslator, can_check_for_lexical) {
 	}*/
 };
 
+TEST(TTranslator, can_work_with_decimal_numbers) {
+	std::string str;
+	str = "(1.2+2)";
+	Translator A(str);
+	ASSERT_NO_THROW(A.lexical_control());
+
+};
+
 TEST(TTranslator, can_check_for_syntax) {
 	std::string str;
-	str = "*(1+2)++";
+	str = "(11 +2)++";
 	Translator A(str);
 	/*try
 	{
