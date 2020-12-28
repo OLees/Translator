@@ -50,36 +50,36 @@ void Translator::lexical_control() {
 			i++;
 		}
 		else if ((s[i] >= '0' && s[i] <= '9')||(s[i] =='.')) {
-			size_t Temp2Lenght = 0.1;
+			double Temp2Lenght = 0.1;
 			int flag = 0;  //показатель, что началась дробная часть
-			double Temp1 = 0;  //целая часть
-			double Temp2 = 0;  //дробная часть
+			double Temp1 = 0.0;  //целая часть
+			double Temp2 = 0.0;  //дробная часть
 			if ((s[i] == '.') && (flag == 0))
 				throw "lexical error - . without whole part";
 
-			while (((s[i] >= '0' && s[i] <= '9')|| (s[i] == '.'))&&(flag==0) ) {
+			while (((s[i] >= '0' && s[i] <= '9') || (s[i] == '.')) && (flag == 0)) {
 				if (s[i] >= '0' && s[i] <= '9') {
-					Temp1 = 10 * Temp1 + std::stod(&s[i]);
+					Temp1 = 10.0 * Temp1 + double(std::stod(&s[i]));
 					StringSize--;
 					i++;
 				}
-				else {
-					flag = 1; 
-					i++; 
+				else if (s[i] == '.') {
+					flag = 1;
+					i++;
 					StringSize--;
 				}
-
-				if ((s[i] >= '0' && s[i] <= '9')&&(flag == 1)) {
-				Temp2 = Temp2 + Temp2Lenght * std::stod(&s[i]);
-				Temp2Lenght = Temp2Lenght * 0.1;
-				StringSize--;
-				i++;
+			}
+			while (s[i] >= '0' && s[i] <= '9')
+				if (flag == 1) {
+					Temp2 = Temp2 + Temp2Lenght * double(std::stod(&s[i]));
+					Temp2Lenght = Temp2Lenght * 0.1;
+					StringSize--;
+					i++;
 				}
-
-				if ((s[i] == '.') && (flag == 1))
+			if ((s[i] == '.') && (flag == 1))
 					throw "You cannot put 2 . in 1 number";
 
-			}
+			
 			Temp1 += Temp2;
 			lecksem.push_back(new NUMBER(Temp1));
 		}
@@ -174,7 +174,7 @@ if ((lecksem.size() > 0) && (lecksem[0]->GetType() == TermType::Operator))
 		throw "Syntax_Error";
 	else lecksem.insert(lecksem.begin(), new NUMBER(0));
 	
-for (size_t i = 0; (lecksem.size() > 0) && (i < s.size() - 1) && (flag == true); i++) {
+for (size_t i = 0; (lecksem.size() > 0) && (i < lecksem.size() - 1) && (flag == true); i++) {
 	t = i + 1;
 	switch (lecksem[i]->GetType()) {
 	case(TermType::Number):

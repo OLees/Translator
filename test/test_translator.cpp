@@ -56,18 +56,10 @@ TEST(TTranslator, can_check_for_syntax) {
 };
 
 TEST(TTranslator, can_solve_not_easy_expressions) {
-	std::string str("((1+2)*(3+4))");
+	std::string str("1.1*10");
 	Translator A(str);
-	/*
-	try
-	{
-		A.solve();
-	}
-	catch (const char* message) {
-		std::cout << message << std::endl;
-	}*/
 	double temp = A.solve();
-	EXPECT_EQ(21, temp);
+	EXPECT_EQ(11, temp);
 };
 
 
