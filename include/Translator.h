@@ -92,6 +92,7 @@ void Translator::lexical_control() {
 }	
 
 void Translator::bracket_control(){
+lexical_control();
 Stack<char> S;
 	for (size_t i = 0; i < s.size(); i++ )
 	{
@@ -164,12 +165,13 @@ Stack<char> S;
 
 
 void Translator::syntax_control(){
+bracket_control();
 bool flag = true;
 int t;
 
 if ((lecksem.size() > 0) && (lecksem[0]->GetType() == TermType::Operator))
-	if (((OPERATOR*)(lecksem[0]))->Priority() == 2)	
-		flag = false;	
+	if (((OPERATOR*)(lecksem[0]))->Priority() == 2)	 
+		throw "Syntax_Error";
 	else lecksem.insert(lecksem.begin(), new NUMBER(0));
 	
 for (size_t i = 0; (lecksem.size() > 0) && (i < s.size() - 1) && (flag == true); i++) {
@@ -177,53 +179,43 @@ for (size_t i = 0; (lecksem.size() > 0) && (i < s.size() - 1) && (flag == true);
 	switch (lecksem[i]->GetType()) {
 	case(TermType::Number):
 		
-		if (((lecksem[t])->GetType() == TermType::Number) || ((lecksem[t])->GetType() == TermType::OpBracket))
-			flag = false;
+		if ((lecksem[t])->GetType() == TermType::OpBracket)
+			throw "Syntax_Error";
 		break;
 
 	case(TermType::Operator):
 		if (((lecksem[t])->GetType() == TermType::Operator) || ((lecksem[t])->GetType() == TermType::ClBracket))
-			flag = false;
-		break;
+			throw "Syntax_Error";
 
 	case(TermType::OpBracket):
 		if (((lecksem[t])->GetType() == TermType::ClBracket))
-		{
-			flag = false;
-			break;
-		}
-		if (((lecksem[t]->GetType()) == TermType::Operator) && (((OPERATOR*)(lecksem[t]))->Priority() == 0))
+			throw "Syntax_Error";
+		if (((lecksem[t]->GetType()) == TermType::Operator) && (((OPERATOR*)(lecksem[t]))->Priority() == 1))
 		{
 			lecksem.insert(lecksem.begin() + t, new NUMBER(0));
 			i++;
 			break;
 		}
-		else {	
-			flag = false;
-			break;
-		}
-		
-		break;
+		else break;
 
 	case(TermType::ClBracket):
 		if ((lecksem[t]->GetType() == TermType::Number) || (lecksem[t]->GetType() == TermType::OpBracket))
-			flag = false;
-		break;
-
+			throw "Syntax_Error";
 	}
 }
-
-size_t f = lecksem.size() - 1;
-if ((flag == true) && (lecksem.size() > 0) && (lecksem[f]->GetType() == TermType::Operator))
+/*
+if ((flag == true) && (lecksem.size() > 0) && (lecksem[lecksem.size() - 1]->GetType() == TermType::Operator))
 	flag = false;
 if (flag == false)
 	throw "Syntax_Error";
+*/
 }
 
 
 
 
 void Translator::postfix_translator() {
+syntax_control();
 Term* Z;
 int f;
 Stack<Term*> S;
@@ -289,7 +281,7 @@ Stack<Term*> S;
 
 
 void Translator::calculator(){
-	
+postfix_translator();
 Stack<double> S;
 for (int i = 0; i < postfix.size(); i++)
 	switch (postfix[i]->GetType()) {
@@ -323,10 +315,6 @@ result = S.Top();
 }
 
 double Translator::solve(){
-	void lexical_control();
-	void bracket_control();
-	void syntax_control();
-	void postfix_translator();
-	void calculator();
+	calculator();
 	return result;
 };

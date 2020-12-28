@@ -50,20 +50,13 @@ TEST(TTranslator, can_work_with_decimal_numbers) {
 
 TEST(TTranslator, can_check_for_syntax) {
 	std::string str;
-	str = "(11 +2)++";
+	str = "++(11 +2)++";
 	Translator A(str);
-	/*try
-	{
-		A.syntax_control();
-	}
-	catch (const char* message) {
-		std::cout << message << std::endl;
-	}*/
 	ASSERT_ANY_THROW(A.syntax_control());
 };
 
 TEST(TTranslator, can_solve_not_easy_expressions) {
-	std::string str("(1+2)*(3+4)");
+	std::string str("((1+2)*(3+4))");
 	Translator A(str);
 	/*
 	try
