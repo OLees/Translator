@@ -64,7 +64,7 @@ TEST(TTranslator, can_solve_not_easy_expressions) {
 
 
 TEST(TTranslator, can_solve_easy_expressions) {
-	std::string str("1+2");
+	std::string str("(1.1+2)*10");
 	Translator A(str);
 	/*
 	try
@@ -75,5 +75,5 @@ TEST(TTranslator, can_solve_easy_expressions) {
 		std::cout << message << std::endl;
 	}*/
 	double temp = A.solve();
-	EXPECT_EQ(3, temp);
+	EXPECT_EQ(31, temp);
 };

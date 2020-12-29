@@ -50,6 +50,7 @@ void Translator::lexical_control() {
 			i++;
 		}
 		else if ((s[i] >= '0' && s[i] <= '9')||(s[i] =='.')) {
+			size_t Temp1Lenght;
 			double Temp2Lenght = 0.1;
 			int flag = 0;  //показатель, что началась дробная часть
 			double Temp1 = 0.0;  //целая часть
@@ -57,28 +58,77 @@ void Translator::lexical_control() {
 			if ((s[i] == '.') && (flag == 0))
 				throw "lexical error - . without whole part";
 
-			while (((s[i] >= '0' && s[i] <= '9') || (s[i] == '.')) && (flag == 0)) {
+			/*
+			while ((s[i] != '.') && (flag == 0)) {
+				Temp1 = 10.0*Temp1 + double(std::stod(&s[i]));
+				StringSize--;
+				i++;
+			}
+
+			if (s[i] == '.'){
+				flag = 1;
+				i++;
+				}
+
+			while (s[i] >= '0' && s[i] <= '9') {
+				Temp2 += Temp2Lenght * double(std::stod(&s[i]));
+				Temp2Lenght = Temp2Lenght * 0.1;
+				StringSize--;
+				i++;
+			}
+
+			if ((s[i] == '.')&&(flag == 1))
+				throw "You cannot put 2 dots in a number";
+			*/
+
+			/*
+			while (flag == 0)
 				if (s[i] >= '0' && s[i] <= '9') {
 					Temp1 = 10.0 * Temp1 + double(std::stod(&s[i]));
 					StringSize--;
 					i++;
 				}
-				else if (s[i] == '.') {
+				else {
 					flag = 1;
 					i++;
 					StringSize--;
 				}
-			}
-			while (s[i] >= '0' && s[i] <= '9')
-				if (flag == 1) {
+			if (flag == 1)
+				while (s[i] >= '0' && s[i] <= '9') {
 					Temp2 = Temp2 + Temp2Lenght * double(std::stod(&s[i]));
 					Temp2Lenght = Temp2Lenght * 0.1;
 					StringSize--;
 					i++;
 				}
+
+			*/
+
+			while (((s[i] >= '0' && s[i] <= '9') || (s[i] == '.')) && (flag == 0)) {
+				if (s[i] >= '0' && s[i] <= '9') {
+					
+					Temp1 = std::stod(&s[i], &Temp1Lenght);
+					StringSize -= Temp1Lenght;
+					i += Temp1Lenght;
+				}
+				else if (s[i] == '.') {
+					flag = 1;
+					i++;
+					StringSize--;
+					break;
+				}
+			}
+			while ((s[i] >= '0' && s[i] <= '9')&&(flag == 1)){
+				Temp1Lenght = 0;
+				Temp2 = std::stod(&s[i], &Temp1Lenght);
+				for (int j=0; j< Temp1Lenght; j++)
+					Temp2Lenght = Temp2Lenght * 0.1;
+				Temp2 *= Temp1Lenght;
+				StringSize-= Temp1Lenght;
+				i += Temp1Lenght;
+				}
 			if ((s[i] == '.') && (flag == 1))
 					throw "You cannot put 2 . in 1 number";
-
+					
 			
 			Temp1 += Temp2;
 			lecksem.push_back(new NUMBER(Temp1));
