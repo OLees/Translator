@@ -1,0 +1,248 @@
+﻿#pragma once
+#include "ustack.h"
+#include <iostream>
+#include <string>
+
+
+
+int bracket_control(std::string s)   //returns 1 if right, throws if wrong
+{
+	Stack<char> S;
+	for (int i = 0; i < s.length(); i++ )
+	{
+		std::cout << s[i] << " ";
+
+		switch (s[i]) {
+
+		case '(':
+			S.push(0);
+			break;   //!!!!!!!!!!!!!!!!!!!!!!!!!
+
+		case ')':
+
+			if (S.IsEmpty())
+				throw "There is problem with )";
+			else
+				if (S.Top() != 0)
+				{
+					throw "There is problem with )";
+					break;
+				}
+				else
+					S.pop();
+			break; //!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+		case '[':
+			S.push(1);
+			break; //!!!!!!!!!!!!!!!!!!!!!!!!!
+
+		case ']':
+
+			if (S.IsEmpty())
+				throw "There is problem with ]";
+			else
+				if (S.Top() != 1)
+				{
+					throw "There is problem with ]";
+					break;
+				}
+				else
+					S.pop();
+			break; //!!!!!!!!!!!!!!!!!!!!!!!!!
+
+		case '{':
+			S.push(2);
+			break; //!!!!!!!!!!!!!!!!!!!!!!!!!
+
+		case '}':
+
+			if (S.IsEmpty())
+				throw "There is problem with }";
+			else
+				if (S.Top() != 2)
+				{
+					throw "There is problem with }";
+					break;
+				}
+				else
+					S.pop();
+			break; //!!!!!!!!!!!!!!!!!!!!!!!!!
+
+		}
+
+		
+
+	}
+	std::cout << std::endl;
+	if (S.IsEmpty())
+		return 1;
+	else
+		throw "There is uneven number of op/cl brackets";
+}
+
+int Priority(char c) {
+	switch (c) {
+	case '+':
+	case '-':
+		return 0;
+		break;
+	case '*':
+	case '/':
+		return 1;
+		break;
+	}
+};
+
+const int lecsema(char c) {
+	switch (c) {
+	case '0':
+	case '1':
+	case '2':
+	case '3':
+	case '4':
+	case '5':
+	case '6':
+	case '7':
+	case '8':
+	case '9':
+		return 1;   //Number
+		 
+	case '(':
+	case '[':
+	case '{':
+		return 2;  //Open bracket
+
+	case ')':
+	case ']':
+	case '}':
+		return 3;  //Close bracket
+
+	case '+':
+	case '-':
+	case '*':
+	case '/':
+		return 4;  //Operation
+	}
+};
+
+const int lecsema_to_int(const int lecsema(char a)) {
+	int s = lecsema(a);
+	switch (s) {
+	case 1:
+		switch (a) {
+		case '0':
+			return 0;
+		case '1':
+			return 1;
+		case '2':
+			return 2;
+		case '3':
+			return 3;
+		case '4':
+			return 4;
+		case '5':
+			return 5;
+		case '6':
+			return 6;
+		case '7':
+			return 7;
+		case '8':
+			return 8;
+		case '9':
+			return 9;
+		}
+	case 2:
+		return 10;
+	case 3:
+		return 11;
+	case 4:
+		return 12;
+
+	}
+}
+
+Stack<char> translator_to_rev(std::string s) {
+	Stack<char> S;
+	Stack<char> R;
+
+	int brackets = bracket_control(s);
+	int f;
+	for (int i = 0; i < s.length() - 1; i++){
+		
+		switch (lecsema(s[i]))
+		{
+		case 1:  //Number
+		
+			S.push(s[i]);
+			break;
+		case 2: //Open bracket
+
+				S.push(s[i]);
+				
+				break;
+
+		case 3:  //Close bracket
+		
+				f = 0;
+				while (!f) {
+					char z = S.Top();
+					//S.pop();
+					if (lecsema(z) == 2)
+						f = 1;
+					else {
+						R.push(z);
+						S.pop();
+					}
+				}
+				break;
+
+		case 4:   //Operation
+			while (!S.IsEmpty()) {
+				char z = S.Top();
+				S.pop();
+				if (Priority(z) >= Priority(s[i])) {
+					R.push(z);
+					
+				}
+				else {
+					S.push(z);
+					break;
+				}
+			}
+			S.push(s[i]);
+			break;
+		}
+	}
+
+	while (!S.IsEmpty()) {
+		char z = S.Top();
+		S.pop();
+		R.push(z);
+	}
+	return R;
+}
+
+int calculator(Stack<char> R) {
+	int res;
+
+	while (!R.IsEmpty()) {
+
+	}
+	return res;
+}
+
+int translator() {
+	std::string s;
+	//std::cin >> s;
+	s = "(15 * [{13 + 4}1 - 41])";
+	int bracks = bracket_control(s);
+	Stack<char> R = translator_to_rev(s);
+	while (!R.IsEmpty()) {
+		std::cout << "Reverse string: ";
+		std::cout << R.Top() << ' ';
+		R.pop();
+	}
+	std::cout << std::endl;
+	return calculator(R);
+}
